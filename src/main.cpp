@@ -1,4 +1,7 @@
-#include <launch_code_webserver.h>
+#include "config.h"
+
+#include "launch_code_webserver.h"
+
 
 #include <signal.h> //catching when the program dies
 
@@ -9,9 +12,26 @@
 
 #define DATE  "2017/07/11"
 
+using namespace std;
+
 bool DEBUG = false;
 
-int main(int argc, char* argv)
+/**
+ * @brief prints the help message
+*/
+void print_help()
+{
+  cout << "launch_code webserver\n";
+  cout << "a small webserver built so I have a recent finished project to show :)\n";
+  cout << endl;
+  cout << PACKAGE << " options\n";
+  cout << "-h          display this message\n";
+  cout << "-D          enable Debug mode\n";
+  cout << "-p ###      what port to run on\n";
+  cout << "-r /path    where our root document is\n";     
+}
+
+int main(int argc, char* argv[])
 {
   string root_dir = "./";
   unsigned long port = 80;
@@ -44,25 +64,12 @@ int main(int argc, char* argv)
 
   my_webserver = new lc_webserver(port, root_dir);
 
-  my_webserver -> listen();
+  int return_status = my_webserver -> listen();
 
   delete my_webserver;
 
-  return EXIT_SUCCESS;
+  return return_status;
 
 }
 
-/**
- * @brief prints the help message
-*/
-void print_help()
-{
-  cout << "launch_code webserver\n";
-  cout << "a small webserver built so I have a recent finished project to show :)\n";
-  cout << endl;
-  cout << PACKAGE << " options\n";
-  cout << "-h          display this message\n";
-  cout << "-D          enable Debug mode\n";
-  cout << "-p ###      what port to run on\n";
-  cout << "-r /path    where our root document is\n";     
-}
+

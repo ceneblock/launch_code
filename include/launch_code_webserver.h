@@ -11,6 +11,8 @@
 #include <sstream> //for stringstream
 #include <vector>
 
+using namespace std;
+
 class lc_webserver
 {
   struct thread_pool
@@ -18,7 +20,8 @@ class lc_webserver
     thread *thread_var;
     bool alive;
     sockaddr_in *client_socket;
-  }
+    int client_FD;
+  };
 
   private: 
     string root_directory;
@@ -28,12 +31,12 @@ class lc_webserver
     void handleGET(char *input, char *input2, sockaddr_in *client_socket);
 
   public:
-    lc_webserver(string root_directory, unsigned long port)
+    lc_webserver(unsigned long port, string root_directory)
     {
       this -> root_directory = root_directory;
       this -> port = port;
     }
 
-    void listen();
-}
+    int listen();
+};
 #endif
