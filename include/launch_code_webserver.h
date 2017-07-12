@@ -1,5 +1,8 @@
 #ifndef LAUNCH_CODE_WEBSERVER_H
 #define LAUNCH_CODE_WEBSERVER_H
+#include <sys/stat.h> //file IO
+#include <fcntl.h>    //file IO
+
 #include <sys/types.h> //network
 #include <sys/socket.h> //network
 #include <netinet/in.h> //network
@@ -33,7 +36,8 @@ class lc_webserver
     vector<thread_pool> pool;
 
     void handleData(unsigned int client_FD, string data);
-    void handleGET(char *input, char *input2, sockaddr_in *client_socket);
+    void handleGET(unsigned int client_FD, string PARAMETER);
+    void handleUNKNOWN(unsigned int client_FD);
 
     void handleClient(thread_pool temp_thread);
 

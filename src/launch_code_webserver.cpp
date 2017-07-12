@@ -1,6 +1,73 @@
 #include "launch_code_webserver.h"
 
 /**
+ * @brief handles when we recieve a GET
+ * @param client_FD who to talk back to
+ * @param PARAMETER what to serve up.
+ */
+void lc_webserver::handleGET(unsigned int client_FD, string PARAMETER)
+{
+  unsigned long bytes_available = 0;
+  string message = "HTTP/1.1 200 OK\n"
+    "Server: PACKAGE\n"
+    "Connection: close\n"
+    "Content-Type: text/html\n"
+    "\n";
+
+  PARAMETER = "." + PARAMETER;
+  int content_fd = open(PARAMETER.c_str(), O_RDONLY);
+  if(content_fd == -1)
+  {
+    //Something bad happened. Just gonna abort!
+    cerr << "Unable to open " << PARAMETER << endl;
+    cerr << "Aborting this client\n";
+    handleUNKNOWN(client_FD);
+  }
+  else
+  {
+    if((ioctl(content_fd,FIONREAD,&bytes_available)) == -1)
+    {
+      cerr << "Error in ioctl\n";
+      handleUNKNOWN(client_FD);
+    }
+    else
+    {
+      char data[bytes_available];
+      ssize_t amount_read = read(content_fd, data, bytes_available);
+      if(amount_read != bytes_available)
+      {
+        cerr << "Had a problem reading the whole file\n";
+        handleUNKNOWN(client_FD);
+      }
+      else
+      {
+        message = message + data;
+        send(client_FD, message.c_str(), message.length(), 0);
+        close(client_FD);
+        close(content_fd);
+      }
+    }
+  }
+}
+
+/**
+ * @brief handles when we recieve something weird
+ * @param client_FD who to talk back to
+*/
+void lc_webserver::handleUNKNOWN(unsigned int client_FD)
+{
+  string message = "HTTP/1.0 405 Method Not Allowed\n"
+    "Server: PACKAGE\n"
+    "Connection: close\n"
+    "Content-Type: text/html\n"
+    "\n"
+    "Error 405 Method Not Allowed\n\n";
+
+  send(client_FD, message.c_str(), message.length(), 0);
+  close(client_FD);
+}
+
+/**
  * @brief handles client's data
  * @param client_FD the FD to the client
  * @param data what the request way that was sent to us
@@ -9,7 +76,7 @@ void lc_webserver::handleData(unsigned int client_FD, string data)
 {
   char *token;
   string METHOD;
-  string PARAMATER;
+  string PARAMETER;
 
   if((token = strtok(const_cast<char *>(data.c_str()), " ")) != NULL)
   {
@@ -21,16 +88,21 @@ void lc_webserver::handleData(unsigned int client_FD, string data)
   }
   if((token = strtok(NULL, " ")) != NULL)
   {
-    PARAMATER = token;
+    PARAMETER = token;
   }
   else
   {
     //handle error
   }
-  
-  cout << "Method: " << METHOD << endl;
-  cout << "Parameter: " << PARAMATER << endl;
 
+  if(METHOD == "GET")
+  {
+    handleGET(client_FD, PARAMETER);
+  }
+  else
+  {
+    handleUNKNOWN(client_FD);
+  }
 }
 
 /**
@@ -68,6 +140,7 @@ void lc_webserver::handleClient(thread_pool temp_thread)
 
       data = data.substr(0,(data.find("\n")));
       handleData(temp_thread.client_FD, data);
+      break;
     }
   }
   else
