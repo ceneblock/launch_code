@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 
   my_webserver = new lc_webserver(port, root_dir);
 
-  int return_status = my_webserver -> listen();
+  int return_status = my_webserver -> lc_listen();
 
   delete my_webserver;
 

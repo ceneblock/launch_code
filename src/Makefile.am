@@ -1,7 +1,8 @@
 bin_PROGRAMS = lc_web
-lib_LIBRARIES = liblcweb.a
-#lib_LTLIBRARIES = liblcweb.la
-lcweb_a_SOURCES = launch_code_webserver.cpp
-AM_CXXFLAGS = -Wall -I$(top_srcdir)/include
-lc_web_LDADD = liblcweb.a
+lib_LTLIBRARIES = liblcweb.la
+AM_CXXFLAGS = -Wall -I$(top_srcdir)/include -lpthread
+
 lc_web_SOURCES = main.cpp
+lc_web_LDADD = liblcweb.la
+
+liblcweb_la_SOURCES = launch_code_webserver.cpp

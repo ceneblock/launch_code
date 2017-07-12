@@ -5,12 +5,16 @@
 #include <netinet/in.h> //network
 #include <string.h> //for memset
 #include <arpa/inet.h> //for inet_ntoa (network to ascii)
+#include <unistd.h> //chdir and other POSIX things
+#include <poll.h> //so I don't busy wait
+#include <sys/ioctl.h> //so I don't waste my time on multiple calls on recv
 
 #include <string>
 #include <thread> //C++11 baby!
 #include <sstream> //for stringstream
 #include <vector>
 
+#include <iostream>
 using namespace std;
 
 class lc_webserver
@@ -20,7 +24,7 @@ class lc_webserver
     thread *thread_var;
     bool alive;
     sockaddr_in *client_socket;
-    int client_FD;
+    unsigned int client_FD;
   };
 
   private: 
@@ -28,15 +32,24 @@ class lc_webserver
     unsigned long port;
     vector<thread_pool> pool;
 
+    void handleData(unsigned int client_FD, string data);
     void handleGET(char *input, char *input2, sockaddr_in *client_socket);
+
+    void handleClient(thread_pool temp_thread);
 
   public:
     lc_webserver(unsigned long port, string root_directory)
     {
       this -> root_directory = root_directory;
       this -> port = port;
+      if(chdir(this -> root_directory.c_str()) != 0)
+      {
+        cerr << "Unable to change directories!\n";
+        cerr << "Bailing!\n";
+        exit(EXIT_FAILURE);
+      }
     }
 
-    int listen();
+    int lc_listen();
 };
 #endif
