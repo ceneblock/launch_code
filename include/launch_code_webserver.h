@@ -3,6 +3,8 @@
 #include <sys/stat.h> //file IO
 #include <fcntl.h>    //file IO
 
+#include <magic.h>   //MIME
+
 #include <sys/types.h> //network
 #include <sys/socket.h> //network
 #include <netinet/in.h> //network
@@ -41,6 +43,7 @@ class lc_webserver
 
     void handleClient(thread_pool temp_thread);
 
+    string getMagic(string location);
   public:
     lc_webserver(unsigned long port, string root_directory)
     {

@@ -1,6 +1,23 @@
 #include "launch_code_webserver.h"
 
 /**
+ * @brief returns the mime type for a given file
+ * @input location the path to the file
+ * @return the corresponding MIME type
+ */
+string lc_webserver::getMagic(string location)
+{
+  string mime = "";
+  magic_t magic;
+  magic = magic_open(MAGIC_MIME_TYPE); 
+  magic_load(magic, NULL);
+  magic_compile(magic, NULL);
+  mime = magic_file(magic, location.c_str());
+  magic_close(magic);
+  return mime;
+}
+
+/**
  * @brief handles when we recieve a GET
  * @param client_FD who to talk back to
  * @param PARAMETER what to serve up.
@@ -11,8 +28,7 @@ void lc_webserver::handleGET(unsigned int client_FD, string PARAMETER)
   string message = "HTTP/1.1 200 OK\n"
     "Server: PACKAGE\n"
     "Connection: close\n"
-    "Content-Type: text/html\n"
-    "\n";
+    "Content-Type: ";
 
   PARAMETER = "." + PARAMETER;
   int content_fd = open(PARAMETER.c_str(), O_RDONLY);
@@ -41,7 +57,8 @@ void lc_webserver::handleGET(unsigned int client_FD, string PARAMETER)
       }
       else
       {
-        message = message + data;
+        message = message + getMagic(PARAMETER) + "\n\n";
+        message = message + data + "\n";
         send(client_FD, message.c_str(), message.length(), 0);
         close(client_FD);
         close(content_fd);
