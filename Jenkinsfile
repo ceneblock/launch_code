@@ -3,7 +3,13 @@ pipeline {
   stages {
     stage('init') {
       steps {
-        echo 'Hello World'
+        sh './configure'
+      }
+    }
+
+    stage('build') {
+      steps {
+        sh 'make'
       }
     }
 
