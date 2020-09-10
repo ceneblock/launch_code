@@ -4,7 +4,7 @@ pipeline {
     stage('init') {
       steps {
         sh 'sh ./autogen.sh'
-        sh './configure.sh'
+        sh './configure'
       }
     }
 
