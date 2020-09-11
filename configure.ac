@@ -26,7 +26,24 @@ AX_CXX_COMPILE_STDCXX_11([ext],[mandatory])
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([sys/types.h sys/socket.h netinet/in.h \
                   string.h arpa/inet.h sys/stat.h fcntl.h \
-                  magic.h poll.h sys/ioctl.h])
+                  magic.h poll.h sys/ioctl.h magic.h])
+
+AC_CHECK_HEADERS([magic.h], [], [have_magic=no])
+
+if test "x${have_magic}" = xno; then
+  AC_MSG_ERROR([
+      -----------------------------------------------
+       Unable to find BSD file dev on this system.
+       Check with your distribution on how to install
+       BSD file.
+
+       Source code for BSD file can be found at:
+            http://ftp.astron.com/pub/file/
+            https://github.com/file/file
+      -----------------------------------------------
+      ])
+fi
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
